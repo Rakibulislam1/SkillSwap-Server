@@ -1,10 +1,12 @@
 const express = require('express')
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const jwt = require('jsonwebtoken');
 const app = express()
 require('dotenv').config()
 
+const secret = 'mostimportantveryimportant'
 
-
+app.use(express.json())
 
 // mongodb URI
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v6vphhi.mongodb.net/swap?retryWrites=true&w=majority`;
@@ -34,7 +36,18 @@ async function run() {
       res.send(result);
     })
 
-    
+
+
+    app.post('/api/v1/auth/access-token', async (req, res) => {
+      // create token and send to client
+      const user = req.body
+      const token = jwt.sign(user, secret)
+      res.cookie('token', {
+        httpOnly : true,
+        secure : true,
+        sameSite: 'none'
+      }).send({ success: true })
+    })
 
 
     // Send a ping to confirm a successful connection
