@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 var cors = require('cors')
@@ -10,7 +10,9 @@ const secret = "mostimportantveryimportant";
 
 // json parser
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin:["http://localhost:5173"], credentials:true,
+}));
 
 // cookie parser
 app.use(cookieParser());
@@ -46,10 +48,11 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const serviceCollection = client.db("swap").collection("services");
     const serviceBooking = client.db("swap").collection("bookings");
+
 
     // all services data
     app.get("/api/v1/services", async (req, res) => {
@@ -58,29 +61,36 @@ async function run() {
       res.send(result);
     });
 
-    //service bookings
-    app.post("/api/v1/bookings", async (req, res) => {
-      const booking = req.body;
-      console.log(booking);
-      const result = await serviceBooking.insertOne(booking);
-      res.send(result);
-    })
+   // post services in data base
+   app.post("/api/v1/services", async (req, res) => {
+    const services = req.body;
+    console.log(services);
+    const result = await serviceCollection.insertOne(services);
+    res.send(result);
+  })
 
-    app.post("/api/v1/auth/access-token", (req, res) => {
-      // create token and send to client
-      const user = req.body;
-      const token = jwt.sign(user, secret);
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: false,
-          sameSite: "none",
-        })
-        .send({ success: true });
+  //service bookings
+  app.post("/api/v1/bookings", async (req, res) => {
+    const booking = req.body;
+    console.log(booking);
+    const result = await serviceBooking.insertOne(booking);
+    res.send(result);
+  })
+  
+    // service booking user email based
+    app.get("/api/bookings/:userEmail", async (req, res) => {
+      console.log(req.query.email);
+    
+      const userEmail = req.params.userEmail; 
+
+      const result = await serviceBooking.find({userEmail}).toArray();
+      res.send(result);
+
     });
+    
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
