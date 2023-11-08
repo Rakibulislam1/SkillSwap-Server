@@ -136,6 +136,19 @@ async function run() {
     {const id = req.params.id;const query = {_id: new ObjectId(id) };
     const result = await serviceCollection.deleteOne(query);res.send(result);});
 
+       // jwt
+       app.post("/jwt", (req, res) => {
+        // create token and send to client
+        const user = req.body;
+        const token = jwt.sign(user, process.env.SECRET_KEY,{expiresIn: "24h"});
+        res
+          .cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+          })
+          .send({ success: true });
+      });
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log(
