@@ -87,7 +87,18 @@ async function run() {
       res.send(result);
 
     });
+
+    // service booking get
+    app.get("/api/services/:userEmail", async (req, res) => {
+      console.log(req.query.email);
     
+      const userEmail = req.params.userEmail; 
+
+      const result = await serviceBooking.find({userEmail}).toArray();
+      res.send(result);
+
+    });
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
