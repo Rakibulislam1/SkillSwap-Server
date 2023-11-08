@@ -99,6 +99,18 @@ async function run() {
 
     });
 
+    // specific service 
+    app.get("/api/v1/services/:service_provider_email", async (req, res) => {
+    
+      const service_provider_email = req.params.service_provider_email;
+
+      const result = await serviceCollection.find({service_provider_email}).toArray();
+      res.send(result);
+
+    });
+
+    
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
