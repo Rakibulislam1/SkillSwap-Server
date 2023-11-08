@@ -109,7 +109,27 @@ async function run() {
 
     });
 
-    
+    // update
+    app.put("/api/v1/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = {_id: new ObjectId(id)};
+      const options = { upsert: true }; 
+      const updateService = {
+        $set: {
+          service_name: data.service_name,
+          service_image: data.service_img,
+          service_des: data.service_des,
+          service_price: data.service_price,
+        },
+      };
+      const result = await serviceCollection.updateOne(
+        filter,
+        updateService,
+        options
+      );
+      res.send(result);
+    });
 
 
     // Send a ping to confirm a successful connection
