@@ -9,15 +9,20 @@ require("dotenv").config();
 // const secret = "mostimportantveryimportant";
 
 // json parser
-app.use(express.json());
-app.use(
-  cors({
-    origin: ["http://localhost:5173"],
+
+app.use(cors({
+    origin: [
+      "http://localhost:5173",
+      "https://swap-4ede7.web.app",
+      "https://swap-4ede7.firebaseapp.com"
+  ],
+    
     credentials: true,
   })
 );
 
 // cookie parser
+app.use(express.json());
 app.use(cookieParser());
 
 // middleware
@@ -50,8 +55,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+
 
     const serviceCollection = client.db("swap").collection("services");
     const serviceBooking = client.db("swap").collection("bookings");
@@ -79,6 +83,7 @@ async function run() {
       res.send(result);
     });
 
+
     // service booking user email based
     app.get("/api/bookings/:userEmail", async (req, res) => {
       console.log(req.query.email);
@@ -88,6 +93,13 @@ async function run() {
       const result = await serviceBooking.find({ userEmail }).toArray();
       res.send(result);
     });
+
+    // pending service
+    app.get("/api/v1/pending/:service_provider_email", async  (req, res) => {
+      const result = await serviceBooking.find(req.query).toArray();
+      res.send(result);
+    });
+
 
     // service booking get
     app.get("/api/services/:userEmail", async (req, res) => {
